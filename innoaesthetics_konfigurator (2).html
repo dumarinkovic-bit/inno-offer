@@ -1,0 +1,1160 @@
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Innoaesthetics Offer Konfigurator</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#F5F5F7;color:#1D1D1F;font-size:14px}
+.app{max-width:900px;margin:0 auto;padding:16px;padding-bottom:110px}
+.header{background:white;border-radius:12px;padding:14px 20px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 1px 4px rgba(0,0,0,.08)}
+.logo{font-size:16px;font-weight:600}.logo span{color:#534AB7}
+.role-toggle{display:flex;gap:3px;background:#F5F5F7;border-radius:8px;padding:3px}
+.role-btn{padding:5px 14px;border:none;border-radius:6px;font-size:12px;cursor:pointer;font-family:inherit;color:#6B6B6B;background:none}
+.role-btn.active{background:white;color:#1D1D1F;font-weight:500;box-shadow:0 1px 3px rgba(0,0,0,.12)}
+
+/* ── STICKY STATUS BAR ── */
+.sticky{position:fixed;bottom:0;left:0;right:0;z-index:200;background:white;border-top:1px solid #E5E5E5;padding:10px 16px;box-shadow:0 -3px 12px rgba(0,0,0,.10)}
+.sticky-in{max-width:900px;margin:0 auto;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.sticky-cell{display:flex;flex-direction:column;gap:1px;min-width:100px}
+.sc-lbl{font-size:9px;font-weight:600;color:#86868B;text-transform:uppercase;letter-spacing:.05em}
+.sc-val{font-size:15px;font-weight:700}
+.sc-sub{font-size:10px;color:#86868B}
+.sem{display:flex;align-items:center;gap:8px;margin-left:auto}
+.sem-dot{width:13px;height:13px;border-radius:50%;flex-shrink:0}
+.sem-dot.green{background:#34C759}.sem-dot.yellow{background:#FF9500}
+.sem-dot.red{background:#FF3B30}.sem-dot.gray{background:#C7C7CC}
+.sem-lbl{font-size:13px;font-weight:600}
+.send-btn{padding:10px 22px;border:none;border-radius:9px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap;flex-shrink:0}
+.send-btn.green{background:#34C759;color:white}.send-btn.green:hover{background:#28A745}
+.send-btn.yellow{background:#FF9500;color:white}.send-btn.yellow:hover{background:#E08500}
+.send-btn.off{background:#E5E5E5;color:#86868B;cursor:not-allowed}
+
+/* ── CARDS ── */
+.card{background:white;border-radius:12px;padding:14px 16px;margin-bottom:12px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.ctitle{font-size:11px;font-weight:600;color:#86868B;text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.sbadge{width:20px;height:20px;border-radius:50%;background:#534AB7;color:white;font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.sbadge.done{background:#34C759}
+select{width:100%;padding:8px 10px;border:1px solid #E5E5E5;border-radius:8px;background:white;color:#1D1D1F;font-size:13px;font-family:inherit;margin-bottom:10px;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2386868B' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;padding:7px 8px;color:#86868B;border-bottom:1px solid #F0F0F0;font-weight:500;font-size:11px}
+td{padding:7px 8px;border-bottom:1px solid #F9F9F9;vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#FAFAFA}
+.qw{display:flex;align-items:center;justify-content:center;gap:5px}
+.qb{width:26px;height:26px;border:1px solid #E5E5E5;border-radius:6px;background:white;cursor:pointer;font-size:16px;color:#1D1D1F;display:flex;align-items:center;justify-content:center}
+.qb:hover{background:#F5F5F7}
+.qv{font-size:13px;font-weight:600;min-width:20px;text-align:center}
+
+/* ── BUDGET BAR ── */
+.bbar{padding:10px 14px;border-radius:10px;margin-bottom:10px;border:1px solid}
+.bbar.ok{background:#FFF8EC;border-color:#FFE0A3}
+.bbar.over{background:#FFF0F0;border-color:#FFCDD0}
+.btop{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.blbl{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em}
+.blbl.ok{color:#7D4E00}.blbl.over{color:#C0392B}
+.btrack{height:6px;background:#E5E5E5;border-radius:3px;overflow:hidden}
+.bfill{height:100%;border-radius:3px;transition:width .25s}
+.bmeta{display:flex;justify-content:space-between;margin-top:4px;font-size:10px;color:#86868B}
+.over-notice{margin-top:6px;padding:8px 12px;background:#FFF8EC;border:1px solid #FFE0A3;border-radius:8px;font-size:12px;color:#7D4E00}
+.lock-notice{padding:12px;background:#F5F5F7;border-radius:8px;text-align:center;color:#86868B;font-size:12px;border:1px solid #E5E5E5;margin-bottom:10px}
+
+/* ── TABS ── */
+.tab-row{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
+.tbtn{padding:6px 14px;border:1px solid #E5E5E5;border-radius:20px;background:white;font-size:12px;cursor:pointer;font-family:inherit;color:#86868B}
+.tbtn.active{background:#534AB7;color:white;border-color:#534AB7;font-weight:500}
+
+/* ── TWO COL ── */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.pbox{border:1px solid #E5E5E5;border-radius:10px;overflow:hidden;display:flex;flex-direction:column}
+.phead{padding:8px 12px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid #E5E5E5;flex-shrink:0}
+.ph-gray{background:#F5F5F7;color:#86868B}
+.ph-green{background:#E8F9EE;color:#1A7F3C;border-bottom-color:#C3EDD1}
+.plist{max-height:240px;overflow-y:auto}
+.pitem{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;border-bottom:1px solid #F5F5F7;font-size:12px;gap:8px}
+.pitem:last-child{border-bottom:none}
+.pitem.ov{background:#FFFDF5}
+.abtn{padding:4px 12px;background:#E8F9EE;color:#1A7F3C;border:1px solid #C3EDD1;border-radius:6px;font-size:11px;font-weight:500;cursor:pointer;font-family:inherit;white-space:nowrap;flex-shrink:0}
+.abtn:hover{background:#C3EDD1}
+.abtn.warn{background:#FFF8EC;color:#7D4E00;border-color:#FFE0A3}
+.abtn.warn:hover{background:#FFE0A3}
+.abtn:disabled{background:#F5F5F7;color:#C7C7CC;border-color:#E5E5E5;cursor:not-allowed}
+.bitem{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;border-bottom:1px solid #C3EDD1;font-size:12px;background:#F5FBF7;gap:6px}
+.bitem.ov{background:#FFFDF5;border-bottom-color:#FFE0A3}
+.bitem:last-child{border-bottom:none}
+.gqw{display:flex;align-items:center;gap:3px}
+.gqb{width:22px;height:22px;border:1px solid #C3EDD1;border-radius:5px;background:white;cursor:pointer;font-size:13px;color:#1A7F3C;display:flex;align-items:center;justify-content:center}
+.gqv{font-size:12px;font-weight:600;min-width:16px;text-align:center;color:#1A7F3C}
+.rbtn{background:none;border:none;cursor:pointer;color:#FF3B30;font-size:18px;padding:0;line-height:1;flex-shrink:0}
+
+/* ── CASH ── */
+.cash-p{padding:14px}
+.pr{display:flex;align-items:center;gap:12px;margin:10px 0}
+.pr input[type=range]{flex:1;accent-color:#534AB7}
+.pbig{font-size:26px;font-weight:700;color:#534AB7;min-width:52px;text-align:right}
+.caply{padding:9px 20px;background:#534AB7;color:white;border:none;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit}
+.caply:hover{background:#3C3489}
+.caply:disabled{opacity:.4;cursor:not-allowed}
+.cchip{display:inline-flex;align-items:center;gap:8px;padding:5px 12px;background:#EEEDFE;border:1px solid #B8B3F0;border-radius:20px;font-size:12px;color:#534AB7;font-weight:500;margin-top:8px}
+.cchip-r{background:none;border:none;cursor:pointer;color:#534AB7;font-size:16px;padding:0;line-height:1}
+
+/* ── APPROVAL ── */
+.ai{background:white;border-radius:12px;padding:16px 18px;margin-bottom:12px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.ah{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px}
+.at{font-size:15px;font-weight:600}
+.am{font-size:11px;color:#86868B;margin-top:3px}
+.badge{padding:4px 10px;border-radius:20px;font-size:11px;font-weight:600;border:1px solid}
+.by{background:#FFF8EC;color:#7D4E00;border-color:#FFE0A3}
+.bg{background:#E8F9EE;color:#1A7F3C;border-color:#C3EDD1}
+.br{background:#FFF0F0;color:#C0392B;border-color:#FFCDD0}
+.mh{border-radius:10px;padding:14px 16px;margin-bottom:10px}
+.mt{height:6px;border-radius:3px;overflow:hidden;margin-top:8px}
+.mf{height:100%;border-radius:3px}
+.bdown{background:#F5F5F7;border-radius:10px;padding:10px 14px;margin-bottom:10px}
+.brow{display:flex;justify-content:space-between;font-size:12px;padding:4px 0;border-bottom:1px solid #EBEBEB}
+.brow:last-child{border-bottom:none}
+.bk{color:#86868B}.bv{font-weight:500}
+.aacts{display:flex;gap:8px;margin-top:12px}
+.appr{flex:1;padding:9px;background:#E8F9EE;color:#1A7F3C;border:1px solid #C3EDD1;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit}
+.appr:hover{background:#C3EDD1}
+.arej{flex:1;padding:9px;background:#FFF0F0;color:#C0392B;border:1px solid #FFCDD0;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit}
+.arej:hover{background:#FFCDD0}
+
+/* ── ADMIN TABS ── */
+.atab-row{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap}
+.atab{padding:7px 16px;border:1px solid #E5E5E5;border-radius:20px;background:white;font-size:13px;cursor:pointer;font-family:inherit;color:#86868B;font-weight:500}
+.atab.active{background:#534AB7;color:white;border-color:#534AB7}
+.tc{background:#F5F5F7;border-radius:10px;padding:12px 14px;margin-bottom:8px}
+.sr{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+.sr label{font-size:12px;color:#86868B;min-width:220px}
+.sr input[type=range]{flex:1;accent-color:#534AB7}
+.sr span{font-size:12px;font-weight:600;min-width:36px;text-align:right}
+.sdot{width:7px;height:7px;border-radius:50%;display:inline-block;margin-right:5px}
+.sd-ok{background:#34C759}.sd-err{background:#FF3B30}
+.sd-load{background:#FF9500;animation:pulse 1s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.empty{text-align:center;padding:32px;color:#86868B;font-size:13px}
+.icb{font-size:9px;background:#EEEDFE;color:#534AB7;padding:1px 5px;border-radius:3px;vertical-align:middle;margin-left:4px}
+.ovb{font-size:9px;background:#FFF8EC;color:#7D4E00;padding:1px 5px;border-radius:3px;vertical-align:middle;margin-left:4px}
+.def-row{display:flex;align-items:center;gap:8px;margin-top:10px;padding-top:10px;border-top:1px solid #F0F0F0;font-size:13px}
+.bi{width:100%;padding:9px 12px;border:1px solid #E5E5E5;border-radius:8px;font-size:13px;font-family:inherit;margin-bottom:10px}
+.bi:focus{outline:none;border-color:#534AB7}
+@media(max-width:600px){.two-col{grid-template-columns:1fr}.plist{max-height:160px}.sticky-in{flex-wrap:wrap}}
+</style>
+</head>
+<body>
+<div class="app">
+
+<div class="header">
+  <div class="logo">Innoaesthetics <span>Offer</span></div>
+  <div style="display:flex;align-items:center;gap:12px">
+    <span style="font-size:11px;color:#86868B"><span class="sdot sd-ok" id="sdot"></span><span id="stxt">Demo mod</span></span>
+    <div class="role-toggle">
+      <button class="role-btn active" id="rb-seller" onclick="setRole('seller')">Prodavac</button>
+      <button class="role-btn" id="rb-admin" onclick="setRole('admin')">Admin</button>
+    </div>
+  </div>
+</div>
+
+<!-- SELLER -->
+<div id="v-seller">
+
+  <!-- Step 1 -->
+  <div class="card">
+    <div class="ctitle"><div class="sbadge" id="sn1">1</div>Korpa — proizvodi za prodaju</div>
+    <select id="line-sel" onchange="filterP()">
+      <option value="">— Sve linije —</option>
+      <option value="INNO-EXOMA">INNO-EXOMA</option>
+      <option value="INNO-TDS">INNO-TDS LINE</option>
+      <option value="INNO-EXFO">INNO-EXFO LINE</option>
+      <option value="INNO-DERMA">INNO-DERMA LINE</option>
+      <option value="INNO-EPIGEN">INNO-EPIGEN LINE</option>
+      <option value="ME LINE">ME LINE</option>
+    </select>
+    <div style="overflow-x:auto">
+      <table>
+        <thead><tr>
+          <th style="width:56px">Šifra</th><th>Naziv</th>
+          <th style="width:76px">Pak.</th>
+          <th style="width:95px;text-align:right">Prod. cena</th>
+          <th style="width:94px;text-align:center">Količina</th>
+        </tr></thead>
+        <tbody id="ptbody"></tbody>
+      </table>
+    </div>
+    <div id="cart-wrap" style="display:none;margin-top:12px;padding-top:12px;border-top:1px solid #F0F0F0">
+      <table>
+        <thead><tr><th>Naziv</th><th style="width:42px;text-align:center">Kol.</th><th style="width:95px;text-align:right">Iznos</th><th style="width:26px"></th></tr></thead>
+        <tbody id="ctbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Step 2 -->
+  <div class="card" id="gift-sec" style="display:none">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px">
+      <div class="ctitle" style="margin-bottom:0"><div class="sbadge" id="sn2">2</div>Poklon basket</div>
+      <div class="tab-row" style="margin-bottom:0">
+        <button class="tbtn active" id="tb-prod" onclick="setGTab('prod')">🎁 Proizvodi</button>
+        <button class="tbtn" id="tb-brand" onclick="setGTab('brand')">🏷 Brending</button>
+        <button class="tbtn" id="tb-cash" onclick="setGTab('cash')">💰 Fin. popust</button>
+      </div>
+    </div>
+
+    <div id="lock-note" class="lock-notice" style="display:none"></div>
+
+    <div id="bbar-wrap" style="display:none">
+      <div class="bbar ok" id="bbar">
+        <div class="btop">
+          <span class="blbl ok" id="blbl">Benefit budžet</span>
+          <span style="font-size:12px;font-weight:600" id="bdet">—</span>
+        </div>
+        <div class="btrack"><div class="bfill" id="bfill" style="width:0;background:#34C759"></div></div>
+        <div class="bmeta"><span id="bused-l"></span><span id="brem-l"></span></div>
+      </div>
+      <div id="over-note" class="over-notice" style="display:none">
+        ⚠ Benefit paket premašuje auto-odobreni budžet — ponuda će biti poslata na odobrenje.
+      </div>
+    </div>
+
+    <!-- Proizvodi -->
+    <div id="gt-prod">
+      <div class="two-col">
+        <div class="pbox">
+          <div class="phead ph-gray">Izaberi iz kataloga</div>
+          <div style="padding:6px 10px;border-bottom:1px solid #F0F0F0;flex-shrink:0">
+            <input id="gsearch" type="text" placeholder="Pretraži..." oninput="renderGCat()"
+              style="width:100%;font-size:12px;padding:5px 8px;border:1px solid #E5E5E5;border-radius:6px;font-family:inherit">
+          </div>
+          <div class="plist" id="gcat"></div>
+        </div>
+        <div class="pbox">
+          <div class="phead ph-green">🎁 Poklon proizvodi</div>
+          <div id="gbas"></div>
+          <div id="gempty" class="empty" style="padding:20px;font-size:12px">Nije dodat nijedan poklon</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Brending -->
+    <div id="gt-brand" style="display:none">
+      <div class="two-col">
+        <div class="pbox">
+          <div class="phead ph-gray">Brending materijali</div>
+          <div class="plist" id="bcat"></div>
+        </div>
+        <div class="pbox">
+          <div class="phead ph-green">🎁 Poklon brending</div>
+          <div id="bbas"></div>
+          <div id="bempty" class="empty" style="padding:20px;font-size:12px">Nije dodat nijedan materijal</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cash -->
+    <div id="gt-cash" style="display:none">
+      <div class="cash-p">
+        <div style="font-size:12px;color:#86868B;margin-bottom:2px">Finansijski popust na fakturu — % od vrednosti narudžbine. Troši benefit budžet 1:1.</div>
+        <div style="font-size:11px;color:#86868B;margin-bottom:8px" id="cash-hint"></div>
+        <div class="pr">
+          <input type="range" id="cslider" min="0" max="20" step="0.5" value="0" oninput="updCS()">
+          <span class="pbig" id="cpct">0%</span>
+        </div>
+        <div style="font-size:13px;color:#86868B;margin-bottom:6px" id="cres"></div>
+        <div id="cover-w" style="display:none;font-size:11px;color:#7D4E00;margin-bottom:8px;padding:6px 10px;background:#FFF8EC;border-radius:6px">
+          ⚠ Premašuje auto-odobreni budžet — ponuda će ići na odobrenje.
+        </div>
+        <button class="caply" id="caply-btn" onclick="applyC()" disabled>Primeni popust</button>
+        <div id="cchip-w" style="display:none">
+          <div class="cchip">💰 <span id="cchip-v"></span>
+            <button class="cchip-r" onclick="removeC()">×</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="def-wrap" style="display:none">
+      <div class="def-row">
+        <input type="checkbox" id="def-chk" onchange="rAll()" style="accent-color:#534AB7">
+        <label for="def-chk" style="cursor:pointer">Odloženo plaćanje 30 dana</label>
+        <span style="font-size:11px;color:#86868B">(dostupno bez fin. popusta)</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Buyer name -->
+  <div id="act-sec" style="display:none">
+    <div class="card">
+      <div class="ctitle">Naziv kupca / klinike</div>
+      <input type="text" id="buyer" class="bi" placeholder="npr. Klinika Ars Medica, Beograd">
+    </div>
+  </div>
+
+</div><!-- /v-seller -->
+
+<!-- ADMIN -->
+<div id="v-admin" style="display:none">
+  <div class="atab-row">
+    <button class="atab active" id="at-pend" onclick="setATab('pend')">Na čekanju <span id="pbadge"></span></button>
+    <button class="atab" id="at-done" onclick="setATab('done')">Odobrene / Odbijene</button>
+    <button class="atab" id="at-cfg" onclick="setATab('cfg')">⚙ Podešavanja</button>
+  </div>
+  <div id="ap-pend"></div>
+  <div id="ap-done" style="display:none"></div>
+  <div id="ap-cfg" style="display:none">
+    <div class="card">
+      <div class="ctitle">Tier pragovi i benefit budžet</div>
+      <div id="tier-cfg"></div>
+      <button onclick="saveCfg()" style="margin-top:10px;padding:9px 20px;background:#534AB7;color:white;border:none;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit">Sačuvaj</button>
+      <span id="cfg-st" style="font-size:11px;color:#86868B;margin-left:10px"></span>
+    </div>
+    <div class="card">
+      <div class="ctitle">Sve odobrene ponude</div>
+      <div id="hist"></div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /app -->
+
+<!-- STICKY BAR -->
+<div class="sticky" id="sbar" style="display:none">
+  <div class="sticky-in">
+    <div class="sticky-cell">
+      <div class="sc-lbl">Narudžbina</div>
+      <div class="sc-val" id="st-tot" style="color:#534AB7">—</div>
+    </div>
+    <div class="sticky-cell">
+      <div class="sc-lbl">Auto-budžet</div>
+      <div class="sc-val" id="st-bud" style="color:#FF9500">—</div>
+      <div class="sc-sub" id="st-bud-s"></div>
+    </div>
+    <div class="sticky-cell">
+      <div class="sc-lbl">Iskorišćeno</div>
+      <div class="sc-val" id="st-use">—</div>
+      <div class="sc-sub" id="st-use-s"></div>
+    </div>
+    <div class="sem">
+      <div class="sem-dot gray" id="sem-d"></div>
+      <span class="sem-lbl" id="sem-l" style="color:#86868B">—</span>
+    </div>
+    <button class="send-btn off" id="send-btn" onclick="doSubmit()" disabled>Pošalji</button>
+  </div>
+</div>
+
+<script>
+const ASU='https://script.google.com/macros/s/AKfycbzQkh16Rf0d843Y0jxnNm-610RuPm74GbNvEY6pEtpJ6MM6j-VAFYuKQsKW4nAnRmlP/exec';
+
+const PRODUCTS=[
+  {id:"EX001",name:"EXO-SKIN",line:"INNO-EXOMA",pack:"10ml",price:11120,cost:4480},
+  {id:"TD040",name:"FACE NADE",line:"INNO-TDS",pack:"4x2,5ml",price:3400,cost:1421},
+  {id:"TD041",name:"AKN-ID",line:"INNO-TDS",pack:"4x2,5ml",price:5800,cost:1779},
+  {id:"TD042",name:"DNA PEPT-HA",line:"INNO-TDS",pack:"4x2,5ml",price:6400,cost:2278},
+  {id:"TD043",name:"REDNESS ID",line:"INNO-TDS",pack:"4x2,5ml",price:5700,cost:1843},
+  {id:"TD044",name:"RESTRUCTURER",line:"INNO-TDS",pack:"4x5ml",price:4200,cost:1779},
+  {id:"TD045",name:"HYALURONIC ACID",line:"INNO-TDS",pack:"4x2,5ml",price:4600,cost:1920},
+  {id:"TD046",name:"HAIR VITAL (W)",line:"INNO-TDS",pack:"4x2,5ml",price:3700,cost:1702},
+  {id:"TD047",name:"HAIR LOSS CTRL (M)",line:"INNO-TDS",pack:"4x2,5ml",price:3700,cost:1702},
+  {id:"TD048",name:"FILL-UP",line:"INNO-TDS",pack:"4x2,5ml",price:4750,cost:1920},
+  {id:"TD049",name:"MATRIX",line:"INNO-TDS",pack:"4x2,5ml",price:4800,cost:1779},
+  {id:"TD050",name:"VITAMIN COMPLEX",line:"INNO-TDS",pack:"4x5ml",price:4200,cost:1638},
+  {id:"TD051",name:"TIGF",line:"INNO-TDS",pack:"4x2,5ml",price:4800,cost:1779},
+  {id:"TD052",name:"SENSITIVE-ID",line:"INNO-TDS",pack:"4x2,5ml",price:6500,cost:1984},
+  {id:"TD053",name:"XEROSKIN-ID",line:"INNO-TDS",pack:"4x2,5ml",price:6400,cost:1920},
+  {id:"TD054",name:"DRAINING PPC",line:"INNO-TDS",pack:"4x5ml",price:3200,cost:1638},
+  {id:"TD055",name:"SLIMMING",line:"INNO-TDS",pack:"4x5ml",price:2500,cost:1562},
+  {id:"TD057",name:"FIRMING",line:"INNO-TDS",pack:"4x5ml",price:4200,cost:1638},
+  {id:"TD200",name:"HYALURONIDASE",line:"INNO-TDS",pack:"4x5ml",price:6400,cost:2560},
+  {id:"IE002",name:"MANDELAGE",line:"INNO-EXFO",pack:"30ml",price:9050,cost:1843},
+  {id:"IE105",name:"INNO EXFO MCA 35",line:"INNO-EXFO",pack:"5x5ml",price:7830,cost:2842},
+  {id:"IE006",name:"BIO C",line:"INNO-EXFO",pack:"5+5x2ml",price:7360,cost:2061},
+  {id:"IE007",name:"LIGHTENING",line:"INNO-EXFO",pack:"15gr",price:7830,cost:3085},
+  {id:"IE009",name:"NEUTRALIZER",line:"INNO-EXFO",pack:"100ml",price:1450,cost:781},
+  {id:"IE010",name:"DEGREASING SOL.",line:"INNO-EXFO",pack:"100ml",price:1150,cost:819},
+  {id:"IE312",name:"SKIN RECOVERY",line:"INNO-EXFO",pack:"5x5ml",price:9050,cost:1843},
+  {id:"IE113",name:"EXFO TC AGE",line:"INNO-EXFO",pack:"5x5ml",price:9300,cost:1843},
+  {id:"IE014",name:"XEROSKIN PEEL",line:"INNO-EXFO",pack:"6x2ml",price:9300,cost:1984},
+  {id:"IE015",name:"AKN PEEL",line:"INNO-EXFO",pack:"6x2ml",price:9300,cost:1984},
+  {id:"IE016",name:"SENSITIVE PEEL",line:"INNO-EXFO",pack:"6x2ml",price:9300,cost:1984},
+  {id:"IE017",name:"REDNESS PEEL",line:"INNO-EXFO",pack:"6x2ml",price:9300,cost:1984},
+  {id:"ID001",name:"SOFT CLEANSER",line:"INNO-DERMA",pack:"200ml",price:1800,cost:832},
+  {id:"ID002",name:"DEEP CLEANSER",line:"INNO-DERMA",pack:"200ml",price:1800,cost:858},
+  {id:"ID003",name:"NMF TONIC",line:"INNO-DERMA",pack:"200ml",price:2775,cost:858},
+  {id:"ID005",name:"EYE REVITALIZER",line:"INNO-DERMA",pack:"15gr",price:2250,cost:960},
+  {id:"ID008",name:"SKIN REPAIR",line:"INNO-DERMA",pack:"60gr",price:2550,cost:1101},
+  {id:"ID009",name:"AGE RESCUE 24H",line:"INNO-DERMA",pack:"50gr",price:3750,cost:2138},
+  {id:"ID010",name:"AKN PURIFIER NIGHT",line:"INNO-DERMA",pack:"50gr",price:3750,cost:2138},
+  {id:"ID011",name:"DARK SPOT ERASER",line:"INNO-DERMA",pack:"50gr",price:3750,cost:2138},
+  {id:"ID012",name:"HAIR LOTION",line:"INNO-DERMA",pack:"70ml",price:4200,cost:1344},
+  {id:"ID013",name:"KERATIODERM",line:"INNO-DERMA",pack:"200ml",price:5400,cost:1779},
+  {id:"ID016",name:"SENSITIVE CREAM",line:"INNO-DERMA",pack:"50ml",price:3825,cost:1395},
+  {id:"ID028",name:"REDNESS CREAM",line:"INNO-DERMA",pack:"50gr",price:3825,cost:1395},
+  {id:"ID018",name:"XEROX DAY CREAM",line:"INNO-DERMA",pack:"50ml",price:3825,cost:1395},
+  {id:"ID019",name:"XEROX NIGHT CREAM",line:"INNO-DERMA",pack:"50ml",price:3825,cost:1690},
+  {id:"ID020",name:"AKN DAY GEL",line:"INNO-DERMA",pack:"50gr",price:3225,cost:1638},
+  {id:"ID021",name:"SUNDEFENSE 50+",line:"INNO-DERMA",pack:"60gr",price:1950,cost:1101},
+  {id:"ID022",name:"SUNDEFENSE 50+ OILY",line:"INNO-DERMA",pack:"60gr",price:1950,cost:1101},
+  {id:"EP001",name:"ANTIOX SERUM",line:"INNO-EPIGEN",pack:"30ml",price:4950,cost:1638},
+  {id:"EP002",name:"AGE PERFECTION SERUM",line:"INNO-EPIGEN",pack:"30ml",price:4950,cost:1638},
+  {id:"EP003",name:"PIGMENT DEFENSE SERUM",line:"INNO-EPIGEN",pack:"30ml",price:4950,cost:1638},
+  {id:"EP004",name:"PURIFYING SERUM",line:"INNO-EPIGEN",pack:"30ml",price:4950,cost:1638},
+  {id:"EP005",name:"TOTAL URBAN DAY",line:"INNO-EPIGEN",pack:"50gr",price:4950,cost:1638},
+  {id:"EP008",name:"BODY CONTOUR",line:"INNO-EPIGEN",pack:"200ml",price:3975,cost:1843},
+  {id:"EP009",name:"SUBLIME NIGHT CREAM",line:"INNO-EPIGEN",pack:"50ml",price:4950,cost:1638},
+  {id:"ME0001",name:"00 MELINEPREP",line:"ME LINE",pack:"6ampx2ml",price:3350,cost:1344},
+  {id:"ME0101",name:"01 MELINE CAUCASIAN",line:"ME LINE",pack:"Airless 20g",price:8300,cost:2560},
+  {id:"ME0102",name:"01 MELINE ETHNIC",line:"ME LINE",pack:"Airless 20g",price:8300,cost:2560},
+  {id:"ME0103",name:"01 MELINE SPOTS",line:"ME LINE",pack:"Vial+jar",price:8300,cost:2560},
+  {id:"ME0106",name:"01 MELINE INTIMATE",line:"ME LINE",pack:"6ampx2ml",price:8430,cost:2765},
+  {id:"ME0107",name:"01 MELINE ID",line:"ME LINE",pack:"6ampx2ml",price:10850,cost:4045},
+  {id:"ME0108",name:"01 MELINE DARK CIRCLE",line:"ME LINE",pack:"2x5ml",price:5870,cost:2765},
+  {id:"ME0110",name:"03 RESTORE",line:"ME LINE",pack:"250ml",price:17900,cost:5402},
+  {id:"ME000F",name:"F GENTLE FOAM",line:"ME LINE",pack:"150ml",price:2850,cost:1101},
+  {id:"ME0201",name:"02 MELINE CAUCASIAN DAY",line:"ME LINE",pack:"30ml",price:4425,cost:2342},
+  {id:"ME0202",name:"02 MELINE ETHNIC DAY",line:"ME LINE",pack:"30ml",price:4425,cost:2342},
+  {id:"ME0203",name:"02 MELINE SPOTS",line:"ME LINE",pack:"Roll on 10ml",price:4350,cost:2061},
+  {id:"ME0204",name:"02 MELINE CAUCASIAN NIGHT",line:"ME LINE",pack:"Airless 20g",price:4425,cost:2342},
+  {id:"ME0205",name:"02 MELINE ETHNIC NIGHT",line:"ME LINE",pack:"Airless 20g",price:4425,cost:2342},
+  {id:"ME0208",name:"02 MELINE INTIMATE",line:"ME LINE",pack:"Roll on 20ml",price:7690,cost:2342},
+  {id:"ME0209",name:"02 MELINE DARK CIRCLE",line:"ME LINE",pack:"Roll on 10ml",price:4950,cost:2342},
+  {id:"ME0301",name:"03 MELINE MOIST",line:"ME LINE",pack:"30ml",price:4500,cost:1344},
+  {id:"ME0302",name:"03 RESTORE jar",line:"ME LINE",pack:"30g",price:4200,cost:1203},
+  {id:"ME0401",name:"04 MELINE BB LIGHT",line:"ME LINE",pack:"Airless 30g",price:2850,cost:1280},
+  {id:"ME0402",name:"04 MELINE BB MEDIUM",line:"ME LINE",pack:"Airless 30g",price:2850,cost:1280},
+  {id:"ME0501",name:"05 PIGMENT HOME MASK",line:"ME LINE",pack:"30g",price:6150,cost:2061},
+];
+
+const BRANDING=[
+  {id:"MKT070",name:"Roll-up INNO-DERMA",cost:10880},
+  {id:"MKT071",name:"Roll-up INNO-EPIGEN",cost:10880},
+  {id:"MKT072",name:"Roll-up INNO-EXFO",cost:10880},
+  {id:"MKT073",name:"Roll-up INNO-TDS",cost:10880},
+  {id:"MKT075",name:"Roll-up Corporate",cost:10880},
+  {id:"MKT100",name:"Inno Notebook",cost:250},
+  {id:"MKT110",name:"Inno Pen",cost:128},
+  {id:"MKT120",name:"Inno Fabric Bag",cost:128},
+  {id:"MKT124",name:"Inno Mirror",cost:768},
+  {id:"MKT126",name:"Inno Fan",cost:1024},
+  {id:"MKT130",name:"Inno Towel 100x150cm",cost:2560},
+  {id:"MKT131",name:"Inno Towel 50x100cm",cost:1408},
+  {id:"MKT133",name:"Inno Headband",cost:704},
+  {id:"MKT150",name:"Inno Product Display",cost:4480},
+  {id:"MKT154",name:"Coffee Cup Inno",cost:384},
+  {id:"MKT600",name:"Block Meline",cost:250},
+  {id:"MKT610",name:"Meline Pen",cost:64},
+  {id:"MKT620",name:"Meline Fabric Bag",cost:128},
+  {id:"MLT571",name:"Roll-up Caucasian Skin",cost:10880},
+  {id:"MKT572",name:"Roll-up Ethnic Skin",cost:10880},
+  {id:"MKT573",name:"Roll-up Intimate",cost:10880},
+  {id:"MKT570",name:"Roll-up Before & After",cost:10880},
+  {id:"MKT630",name:"Meline Big Towel 90x150",cost:2560},
+  {id:"MKT631",name:"Meline Medium Towel",cost:1408},
+  {id:"MKT632",name:"Meline Headband",cost:704},
+  {id:"MKT633",name:"Meline Brush",cost:192},
+];
+
+let tiers=[
+  {min:0,     max:60000,   giftPct:0,  label:"Do 60.000 din",         auto:true,  minM:15},
+  {min:60000, max:120000,  giftPct:10, label:"60.000 - 120.000 din",  auto:true,  minM:15},
+  {min:120000,max:240000,  giftPct:15, label:"120.000 - 240.000 din", auto:false, minM:15},
+  {min:240000,max:Infinity,giftPct:20, label:"240.000+ din",          auto:false, minM:15},
+];
+
+let cart={},gP={},gB={},cPct=0,cAmt=0;
+let role='seller',gtab='prod',atab='pend';
+let oid=1000+Math.floor(Math.random()*8000);
+let pending=[],allOffers=[];
+
+const f=n=>Math.round(n).toLocaleString('sr-RS')+' din';
+const gT=t=>tiers.find(x=>t>=x.min&&t<x.max)||tiers[tiers.length-1];
+const cTot=()=>Object.entries(cart).reduce((s,[id,q])=>{const p=PRODUCTS.find(x=>x.id===id);return s+(p?p.price*q:0);},0);
+const cCost=()=>Object.entries(cart).reduce((s,[id,q])=>{const p=PRODUCTS.find(x=>x.id===id);return s+(p?p.cost*q:0);},0);
+const gPS=()=>Object.entries(gP).reduce((s,[id,q])=>{const p=PRODUCTS.find(x=>x.id===id);return s+(p?p.price*q:0);},0);
+const gPC=()=>Object.entries(gP).reduce((s,[id,q])=>{const p=PRODUCTS.find(x=>x.id===id);return s+(p?p.cost*q:0);},0);
+const gBC=()=>Object.entries(gB).reduce((s,[id,q])=>{const b=BRANDING.find(x=>x.id===id);return s+(b?b.cost*q:0);},0);
+const budUsed=()=>gPS()+gBC()+cAmt;
+const eb=()=>{const t=cTot(),tier=gT(t);return Math.round(t*(tier.giftPct/100));};
+const hasEB=()=>eb()>0;
+const isOver=()=>budUsed()>eb()+0.01;
+
+function calcM(){
+  const tot=cTot(),cost=cCost(),tier=gT(tot);
+  // Prihod bez PDV-a: (faktura - cash popust) / 1.2
+  // Nabavne cene su vec bez PDV-a
+  const revBruto=tot-cAmt;
+  const revNeto=revBruto/1.2;
+  const net=revNeto-cost-gPC()-gBC();
+  const mp=revNeto>0?Math.round((net/revNeto)*100):0;
+  // Bez benefita = uvek auto-approve (nema sta da se odobrava)
+  // Sa benefitom = auto samo ako je tier auto, margina OK i budzet nije prekoracen
+  const noBenefit=budUsed()===0;
+  const autoOk=noBenefit||(tier.auto&&mp>=tier.minM&&!isOver()&&hasEB());
+  return {tot,revBruto,revNeto,cost,net,mp,tier,eb:eb(),autoOk};
+}
+
+async function ws(data){
+  if(ASU==='YOUR_APPS_SCRIPT_URL_HERE')return true;
+  try{
+    document.getElementById('sdot').className='sdot sd-load';
+    document.getElementById('stxt').textContent='Cuva...';
+    await fetch(ASU,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});
+    document.getElementById('sdot').className='sdot sd-ok';
+    document.getElementById('stxt').textContent='Sacuvano';
+    return true;
+  }catch(e){
+    document.getElementById('sdot').className='sdot sd-err';
+    document.getElementById('stxt').textContent='Greska';
+    return false;
+  }
+}
+
+function setRole(r){
+  role=r;
+  document.getElementById('v-seller').style.display=r==='seller'?'':'none';
+  document.getElementById('v-admin').style.display=r==='admin'?'':'none';
+  document.getElementById('rb-seller').classList.toggle('active',r==='seller');
+  document.getElementById('rb-admin').classList.toggle('active',r==='admin');
+  document.getElementById('sbar').style.display=r==='seller'&&Object.keys(cart).length>0?'':'none';
+  if(r==='admin')renderATab();
+}
+
+function filterP(){renderPT(document.getElementById('line-sel').value);}
+
+function renderPT(lf=''){
+  const pr=lf?PRODUCTS.filter(p=>p.line===lf):PRODUCTS;
+  document.getElementById('ptbody').innerHTML=pr.map(p=>`
+    <tr>
+      <td style="font-size:10px;color:#86868B">${p.id}</td>
+      <td><div style="font-weight:500">${p.name}</div><div style="font-size:10px;color:#86868B">${p.line}</div></td>
+      <td style="font-size:11px;color:#86868B">${p.pack}</td>
+      <td style="text-align:right;font-weight:600;white-space:nowrap">${f(p.price)}</td>
+      <td><div class="qw">
+        <button class="qb" onclick="chQ('${p.id}',-1)">-</button>
+        <span class="qv" id="q-${p.id}">${cart[p.id]||0}</span>
+        <button class="qb" onclick="chQ('${p.id}',1)">+</button>
+      </div></td>
+    </tr>`).join('');
+}
+
+function chQ(id,d){
+  const nv=Math.max(0,(cart[id]||0)+d);
+  if(nv===0)delete cart[id];else cart[id]=nv;
+  const el=document.getElementById('q-'+id);if(el)el.textContent=nv;
+  if(cPct>0)cAmt=Math.round(cTot()*(cPct/100));
+  uAll();
+}
+
+function renderCart(){
+  const ents=Object.entries(cart),tot=cTot();
+  const cw=document.getElementById('cart-wrap');
+  if(!ents.length){cw.style.display='none';return;}
+  cw.style.display='';
+  document.getElementById('ctbody').innerHTML=ents.map(([id,q])=>{
+    const p=PRODUCTS.find(x=>x.id===id);
+    return `<tr>
+      <td><span style="font-weight:500">${p.name}</span> <span style="font-size:10px;color:#86868B">${p.pack}</span></td>
+      <td style="text-align:center">${q}</td>
+      <td style="text-align:right;font-weight:600;white-space:nowrap">${f(p.price*q)}</td>
+      <td><button onclick="remCart('${id}')" style="background:none;border:none;cursor:pointer;color:#FF3B30;font-size:18px;line-height:1;padding:0">x</button></td>
+    </tr>`;
+  }).join('')+`<tr style="border-top:2px solid #F0F0F0">
+    <td colspan="2" style="font-weight:600;font-size:13px;padding-top:8px">Ukupno</td>
+    <td style="text-align:right;font-weight:700;font-size:15px;color:#534AB7;padding-top:8px;white-space:nowrap">${f(tot)}</td><td></td>
+  </tr>`;
+}
+
+function remCart(id){
+  delete cart[id];
+  const el=document.getElementById('q-'+id);if(el)el.textContent=0;
+  if(cPct>0)cAmt=Math.round(cTot()*(cPct/100));
+  uAll();
+}
+
+// Gift catalog — NO hard limit, over budget = approval needed
+function renderGCat(){
+  const q=(document.getElementById('gsearch')?.value||'').toLowerCase();
+  const e=eb(),used=budUsed(),locked=!hasEB();
+  document.getElementById('gcat').innerHTML=PRODUCTS
+    .filter(p=>!q||p.name.toLowerCase().includes(q)||p.id.toLowerCase().includes(q))
+    .map(p=>{
+      const inCart=!!cart[p.id];
+      const wouldOver=!locked&&(used+p.price>e+0.01);
+      return `<div class="pitem${wouldOver?' ov':''}">
+        <div style="flex:1;min-width:0">
+          <div style="font-weight:500">${p.name}${inCart?'<span class="icb">u korpi</span>':''}${wouldOver?'<span class="ovb">trazi odobr.</span>':''}</div>
+          <div style="font-size:10px;color:#86868B">${p.pack} - ${f(p.price)}</div>
+        </div>
+        <button class="abtn${wouldOver?' warn':''}" onclick="addGP('${p.id}')" ${locked?'disabled':''}>+ Dodaj</button>
+      </div>`;
+    }).join('');
+}
+
+function addGP(id){if(!hasEB())return;gP[id]=(gP[id]||0)+1;rAll();}
+
+function chGPQ(id,d){
+  if(d>0&&!hasEB())return;
+  const nv=Math.max(0,(gP[id]||0)+d);
+  if(nv===0)delete gP[id];else gP[id]=nv;
+  rAll();
+}
+
+function remGP(id){delete gP[id];rAll();}
+
+function renderGBas(){
+  const list=document.getElementById('gbas');
+  const em=document.getElementById('gempty');
+  const ents=Object.entries(gP).filter(([,q])=>q>0);
+  if(!ents.length){list.innerHTML='';em.style.display='';return;}
+  em.style.display='none';
+  const e=eb();
+  list.innerHTML=ents.map(([id,q])=>{
+    const p=PRODUCTS.find(x=>x.id===id);
+    const over=gPS()>e+0.01;
+    return `<div class="bitem${over?' ov':''}">
+      <div style="flex:1;min-width:0">
+        <div style="font-weight:500">${p.name}</div>
+        <div style="font-size:10px;color:#1A7F3C">${f(p.price)} x ${q} = ${f(p.price*q)}</div>
+      </div>
+      <div style="display:flex;align-items:center;flex-shrink:0">
+        <div class="gqw">
+          <button class="gqb" onclick="chGPQ('${id}',-1)">-</button>
+          <span class="gqv">${q}</span>
+          <button class="gqb" onclick="chGPQ('${id}',1)">+</button>
+        </div>
+        <button class="rbtn" onclick="remGP('${id}')">x</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// Branding catalog — no hard limit
+function renderBCat(){
+  const e=eb(),used=budUsed(),locked=!hasEB();
+  document.getElementById('bcat').innerHTML=BRANDING.map(b=>{
+    const wouldOver=!locked&&(used+b.cost>e+0.01);
+    return `<div class="pitem${wouldOver?' ov':''}">
+      <div style="flex:1;min-width:0">
+        <div style="font-weight:500">${b.name}${wouldOver?'<span class="ovb">trazi odobr.</span>':''}</div>
+        <div style="font-size:10px;color:#86868B">Trosak: ${f(b.cost)}</div>
+      </div>
+      <button class="abtn${wouldOver?' warn':''}" onclick="addGB('${b.id}')" ${locked?'disabled':''}>+ Dodaj</button>
+    </div>`;
+  }).join('');
+}
+
+function addGB(id){if(!hasEB())return;gB[id]=(gB[id]||0)+1;rAll();}
+function remGB(id){delete gB[id];rAll();}
+
+function renderBBas(){
+  const list=document.getElementById('bbas');
+  const em=document.getElementById('bempty');
+  const ents=Object.entries(gB).filter(([,q])=>q>0);
+  if(!ents.length){list.innerHTML='';em.style.display='';return;}
+  em.style.display='none';
+  list.innerHTML=ents.map(([id,q])=>{
+    const b=BRANDING.find(x=>x.id===id);
+    return `<div class="bitem">
+      <div style="flex:1;min-width:0">
+        <div style="font-weight:500">${b.name}</div>
+        <div style="font-size:10px;color:#1A7F3C">Trosak: ${f(b.cost)} x ${q} = ${f(b.cost*q)}</div>
+      </div>
+      <button class="rbtn" onclick="remGB('${id}')">x</button>
+    </div>`;
+  }).join('');
+}
+
+// Cash slider — no hard limit
+// Preview iznos koji bi bio primenjen (ne upisuje u state)
+function cPreviewAmt(){
+  const p=parseFloat(document.getElementById('cslider').value)||0;
+  return Math.round(cTot()*(p/100));
+}
+
+function updCS(){
+  const tot=cTot(),p=parseFloat(document.getElementById('cslider').value)||0;
+  const amt=cPreviewAmt();
+  const e=eb(),usedWC=gPS()+gBC(),wouldOver=(usedWC+amt)>e+0.01;
+  document.getElementById('cpct').textContent=p+'%';
+  document.getElementById('cres').textContent=tot>0?p+'% x '+f(tot)+' = '+f(amt):'';
+  document.getElementById('cover-w').style.display=wouldOver&&p>0?'':'none';
+  document.getElementById('caply-btn').disabled=p===0||!hasEB();
+  // Refresh budget bar i semafor sa preview vrednoscu (ne menja state)
+  rBBarWithPreview(p>0?amt:cAmt);
+  rStickyWithPreview(p>0?amt:cAmt, p>0?p:cPct);
+}
+
+function rBBarWithPreview(previewCashAmt){
+  const e=eb(),used=gPS()+gBC()+previewCashAmt,over=used>e+0.01;
+  const wrap=document.getElementById('bbar-wrap');
+  if(!hasEB()){wrap.style.display='none';return;}
+  wrap.style.display='';
+  const pct=e>0?Math.min(150,Math.round(used/e*100)):0;
+  const bar=document.getElementById('bbar');
+  bar.className='bbar '+(over?'over':'ok');
+  const lbl=document.getElementById('blbl');
+  lbl.className='blbl '+(over?'over':'ok');
+  lbl.textContent=over?'Benefit budzet PREKORACEN':'Benefit budzet';
+  document.getElementById('bdet').textContent=f(e)+' (auto-limit)';
+  document.getElementById('bused-l').textContent='Iskorisceno: '+f(used);
+  document.getElementById('brem-l').textContent=over?'Prekoraceno: +'+f(used-e):'Ostalo: '+f(e-used);
+  const fill=document.getElementById('bfill');
+  fill.style.width=Math.min(100,pct)+'%';
+  fill.style.background=over?'#FF3B30':pct>80?'#FF9500':'#34C759';
+  document.getElementById('over-note').style.display=over?'':'none';
+}
+
+function rStickyWithPreview(previewCashAmt, previewCashPct){
+  const tot=cTot(),hasCart=Object.keys(cart).length>0;
+  const sb=document.getElementById('sbar');
+  if(!hasCart||role!=='seller'){sb.style.display='none';return;}
+  sb.style.display='';
+  const tier=gT(tot);
+  const revBruto=tot-previewCashAmt;
+  const revNeto=revBruto/1.2;
+  const cost=cCost();
+  const net=revNeto-cost-gPC()-gBC();
+  const mp=revNeto>0?Math.round((net/revNeto)*100):0;
+  const e=eb(),used=gPS()+gBC()+previewCashAmt;
+  const over=used>e+0.01;
+  const noBenefit2=used===0;
+  const autoOk=noBenefit2||(tier.auto&&mp>=tier.minM&&!over&&hasEB());
+
+  document.getElementById('st-tot').textContent=f(tot);
+  document.getElementById('st-bud').textContent=e>0?f(e):'—';
+  document.getElementById('st-bud-s').textContent=e>0?(over?'Prekoracen!':'Ostalo: '+f(Math.max(0,e-used))):'Ispod praga';
+
+  if(used>0){
+    document.getElementById('st-use').textContent=f(used);
+    document.getElementById('st-use').style.color='#1D1D1F';
+    let parts=[];
+    if(gPS()>0)parts.push('Prod: '+f(gPS()));
+    if(gBC()>0)parts.push('Brand: '+f(gBC()));
+    if(previewCashAmt>0)parts.push('Popust '+previewCashPct+'%: '+f(previewCashAmt));
+    document.getElementById('st-use-s').textContent=parts.join(' - ');
+  }else{
+    document.getElementById('st-use').textContent='—';
+    document.getElementById('st-use').style.color='#C7C7CC';
+    document.getElementById('st-use-s').textContent='';
+  }
+
+  const dot=document.getElementById('sem-d');
+  const lbl=document.getElementById('sem-l');
+  const btn=document.getElementById('send-btn');
+
+  if(used===0){
+    // Nema benefita uopste - uvek auto-approve
+    dot.className='sem-dot green';lbl.textContent='Auto-odobren';lbl.style.color='#1A7F3C';
+    btn.className='send-btn green';btn.textContent='Posalji kupcu';btn.disabled=false;
+  }else if(!hasEB()){
+    dot.className='sem-dot gray';lbl.textContent='Ispod praga';lbl.style.color='#86868B';
+    btn.className='send-btn off';btn.textContent='Posalji';btn.disabled=true;
+  }else if(mp<5&&used>0){
+    dot.className='sem-dot red';lbl.textContent='Margina preniska (<5%)';lbl.style.color='#C0392B';
+    btn.className='send-btn off';btn.textContent='Margina preniska';btn.disabled=true;
+  }else if(autoOk){
+    dot.className='sem-dot green';lbl.textContent='Auto-odobren';lbl.style.color='#1A7F3C';
+    btn.className='send-btn green';btn.textContent='Posalji kupcu';btn.disabled=false;
+  }else{
+    const reason=over?'Over budget':(!tier.auto?'Tier nije auto':mp<tier.minM?'Margina <'+tier.minM+'%':'');
+    dot.className='sem-dot yellow';lbl.textContent='Trazi odobrenje'+(reason?' ('+reason+')':'');lbl.style.color='#7D4E00';
+    btn.className='send-btn yellow';btn.textContent='Trazi odobrenje';btn.disabled=false;
+  }
+}
+
+function applyC(){
+  const tot=cTot(),p=parseFloat(document.getElementById('cslider').value)||0;
+  cPct=p;cAmt=Math.round(tot*(p/100));
+  rAll();
+}
+
+function removeC(){cPct=0;cAmt=0;document.getElementById('cslider').value=0;rAll();}
+
+function renderCP(){
+  const tier=gT(cTot());
+  document.getElementById('cslider').max=Math.max(tier.giftPct,20);
+  document.getElementById('cash-hint').textContent=
+    hasEB()?`Auto-odobren budžet: ${tier.giftPct}%. Vise ide na odobrenje.`:'';
+  const w=document.getElementById('cchip-w');
+  if(cPct>0){w.style.display='';document.getElementById('cchip-v').textContent=cPct+'% = '+f(cAmt)+' popust na fakturu';}
+  else{w.style.display='none';document.getElementById('cslider').value=0;document.getElementById('cpct').textContent='0%';document.getElementById('cres').textContent='';}
+  updCS();
+}
+
+function setGTab(t){
+  gtab=t;
+  ['prod','brand','cash'].forEach(x=>{
+    document.getElementById('gt-'+x).style.display=x===t?'block':'none';
+    document.getElementById('tb-'+x).classList.toggle('active',x===t);
+  });
+  if(t==='prod')renderGCat();
+  else if(t==='brand')renderBCat();
+  else renderCP();
+}
+
+// Budget bar
+function rBBar(){
+  const e=eb(),used=budUsed(),over=isOver();
+  const wrap=document.getElementById('bbar-wrap');
+  if(!hasEB()){wrap.style.display='none';return;}
+  wrap.style.display='';
+  const pct=e>0?Math.min(150,Math.round(used/e*100)):0;
+  const bar=document.getElementById('bbar');
+  bar.className='bbar '+(over?'over':'ok');
+  const lbl=document.getElementById('blbl');
+  lbl.className='blbl '+(over?'over':'ok');
+  lbl.textContent=over?'Benefit budžet PREKORACEN':'Benefit budžet';
+  document.getElementById('bdet').textContent=f(e)+' (auto-limit)';
+  document.getElementById('bused-l').textContent='Iskorisceno: '+f(used);
+  document.getElementById('brem-l').textContent=over?'Prekoraceno: +'+f(used-e):'Ostalo: '+f(e-used);
+  const fill=document.getElementById('bfill');
+  fill.style.width=Math.min(100,pct)+'%';
+  fill.style.background=over?'#FF3B30':pct>80?'#FF9500':'#34C759';
+  document.getElementById('over-note').style.display=over?'':'none';
+}
+
+// Lock notice
+function rLock(){
+  const ln=document.getElementById('lock-note');
+  if(hasEB()){ln.style.display='none';return;}
+  const tot=cTot();
+  if(!tot){ln.style.display='';ln.textContent='Dodaj proizvode u korpu da aktiviras benefit basket.';return;}
+  const next=tiers.find(t=>t.giftPct>0);
+  const diff=next?Math.max(0,next.min-tot):0;
+  ln.style.display='';
+  ln.textContent='Jos '+f(diff)+' do praga '+f(next.min)+' - benefit budzet '+next.giftPct+'%.';
+}
+
+// STICKY BAR — srce logike
+function rSticky(){
+  const tot=cTot(),hasCart=Object.keys(cart).length>0;
+  const sb=document.getElementById('sbar');
+  if(!hasCart||role!=='seller'){sb.style.display='none';return;}
+  sb.style.display='';
+
+  const m=calcM(),e=eb(),used=budUsed();
+  document.getElementById('st-tot').textContent=f(tot);
+  document.getElementById('st-bud').textContent=e>0?f(e):'—';
+  document.getElementById('st-bud-s').textContent=e>0?(isOver()?'Prekoracen!':'Ostalo: '+f(Math.max(0,e-used))):'Ispod praga';
+
+  if(used>0){
+    document.getElementById('st-use').textContent=f(used);
+    document.getElementById('st-use').style.color='#1D1D1F';
+    let p=[];
+    if(gPS()>0)p.push('Prod: '+f(gPS()));
+    if(gBC()>0)p.push('Brand: '+f(gBC()));
+    if(cAmt>0)p.push('Popust '+cPct+'%: '+f(cAmt));
+    document.getElementById('st-use-s').textContent=p.join(' - ');
+  }else{
+    document.getElementById('st-use').textContent='—';
+    document.getElementById('st-use').style.color='#C7C7CC';
+    document.getElementById('st-use-s').textContent='';
+  }
+
+  const dot=document.getElementById('sem-d');
+  const lbl=document.getElementById('sem-l');
+  const btn=document.getElementById('send-btn');
+
+  // Logika statusa:
+  // ZELENO: tier je auto + margina OK + unutar budžeta (ili nema benefita)
+  // ŽUTO: prodavac trazi odobrenje (over budget, tier nije auto, ili margina niska ali ne previše)
+  // CRVENO: margina preniska (< 5%) — blokira slanje
+  // SIVO: ispod praga, nema šta da se šalje
+
+  if(!hasEB()&&used===0){
+    // Nema benefita, ali ima korpe — može da pošalje bez benefita
+    dot.className='sem-dot green';lbl.textContent='Bez benefita';lbl.style.color='#1A7F3C';
+    btn.className='send-btn green';btn.textContent='Posalji kupcu';btn.disabled=false;
+  } else if(!hasEB()){
+    dot.className='sem-dot gray';lbl.textContent='Ispod praga';lbl.style.color='#86868B';
+    btn.className='send-btn off';btn.textContent='Posalji';btn.disabled=true;
+  } else if(m.mp<5&&used>0){
+    // Drastično niska margina — blokira
+    dot.className='sem-dot red';lbl.textContent='Margina preniska (<5%)';lbl.style.color='#C0392B';
+    btn.className='send-btn off';btn.textContent='Margina preniska';btn.disabled=true;
+  } else if(m.autoOk){
+    // Sve OK — auto approve
+    dot.className='sem-dot green';lbl.textContent='Auto-odobren';lbl.style.color='#1A7F3C';
+    btn.className='send-btn green';btn.textContent='Posalji kupcu';btn.disabled=false;
+  } else {
+    // Treba odobrenje (over budget, ili tier nije auto, ili margina 5-15%)
+    const reason=isOver()?'Over budget':(!m.tier.auto?'Tier nije auto':m.mp<m.tier.minM?'Margina <'+m.tier.minM+'%':'');
+    dot.className='sem-dot yellow';lbl.textContent='Trazi odobrenje'+(reason?' ('+reason+')':'');lbl.style.color='#7D4E00';
+    btn.className='send-btn yellow';btn.textContent='Trazi odobrenje';btn.disabled=false;
+  }
+}
+
+function rAll(){
+  renderGBas();renderBBas();
+  if(gtab==='prod')renderGCat();
+  else if(gtab==='brand')renderBCat();
+  else renderCP();
+  rBBar();rLock();rSticky();
+  document.getElementById('sn1').className='sbadge'+(Object.keys(cart).length>0?' done':'');
+  document.getElementById('sn2').className='sbadge'+(budUsed()>0?' done':'');
+  const hasD=cAmt===0&&hasEB();
+  document.getElementById('def-wrap').style.display=hasD?'':'none';
+  if(!hasD&&document.getElementById('def-chk'))document.getElementById('def-chk').checked=false;
+}
+
+function uAll(){
+  const hasCart=Object.keys(cart).length>0;
+  document.getElementById('gift-sec').style.display=hasCart?'':'none';
+  document.getElementById('act-sec').style.display=hasCart?'':'none';
+  if(!hasCart){gP={};gB={};cPct=0;cAmt=0;}
+  renderCart();
+  rAll();
+}
+
+async function doSubmit(){
+  const m=calcM();
+  const buyer=(document.getElementById('buyer').value||'').trim()||'(nije uneto)';
+  const deferred=document.getElementById('def-chk')?.checked&&cAmt===0||false;
+
+  const offer={
+    id:'#'+(oid++),
+    date:new Date().toLocaleString('sr-RS'),
+    buyer,
+    tot:m.tot,revBruto:m.revBruto,revNeto:m.revNeto,cost:m.cost,net:m.net,mp:m.mp,
+    tierLabel:m.tier.label,tierAuto:m.tier.auto,
+    eb:m.eb,cPct,cAmt,
+    gPI:Object.entries(gP).map(([id,q])=>{const p=PRODUCTS.find(x=>x.id===id);return{name:p.name,qty:q,sp:p.price,cp:p.cost,ts:p.price*q,tc:p.cost*q};}),
+    gBI:Object.entries(gB).map(([id,q])=>{const b=BRANDING.find(x=>x.id===id);return{name:b.name,qty:q,c:b.cost,tc:b.cost*q};}),
+    gPS:gPS(),gPC:gPC(),gBC:gBC(),
+    budUsed:budUsed(),over:isOver(),
+    deferred,
+    cItems:Object.entries(cart).map(([id,q])=>{const p=PRODUCTS.find(x=>x.id===id);return{name:p.name,qty:q,price:p.price,cost:p.cost};}),
+    autoOk:m.autoOk,
+    status:m.autoOk?'approved':'pending',
+  };
+
+  await ws({action:'addOffer',offer});
+
+  if(m.autoOk){
+    allOffers.unshift(offer);
+    alert('Ponuda '+offer.id+' za '+buyer+' automatski odobrena!');
+  }else{
+    pending.unshift(offer);
+    allOffers.unshift(offer);
+    updPBadge();
+    alert('Ponuda '+offer.id+' za '+buyer+' poslata na odobrenje.');
+  }
+
+  cart={};gP={};gB={};cPct=0;cAmt=0;
+  document.getElementById('buyer').value='';
+  renderPT(document.getElementById('line-sel').value);
+  uAll();
+}
+
+// ── ADMIN ──
+function setATab(t){
+  atab=t;
+  ['pend','done','cfg'].forEach(x=>{
+    document.getElementById('ap-'+x).style.display=x===t?'':'none';
+    document.getElementById('at-'+x).classList.toggle('active',x===t);
+  });
+  renderATab();
+}
+
+function renderATab(){
+  if(atab==='pend')renderPend();
+  else if(atab==='done')renderDone();
+  else buildCfg();
+}
+
+function updPBadge(){
+  const n=pending.filter(o=>o.status==='pending').length;
+  document.getElementById('pbadge').textContent=n>0?'('+n+')':'';
+}
+
+const mc=p=>p>=20?'#1A7F3C':p>=12?'#7D4E00':'#C0392B';
+const mbg=p=>p>=20?'#E8F9EE':p>=12?'#FFF8EC':'#FFF0F0';
+const mbc=p=>p>=20?'#C3EDD1':p>=12?'#FFE0A3':'#FFCDD0';
+const mf=p=>p>=20?'#34C759':p>=12?'#FF9500':'#FF3B30';
+
+function mBlock(o){
+  return '<div class="mh" style="background:'+mbg(o.mp)+';border:1px solid '+mbc(o.mp)+'">'
+    +'<div style="font-size:10px;font-weight:600;color:'+mc(o.mp)+';text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px">Zarada na ponudi</div>'
+    +'<div style="display:flex;align-items:baseline;gap:10px">'
+    +'<span style="font-size:30px;font-weight:700;color:'+mc(o.mp)+'">'+f(o.net)+'</span>'
+    +'<span style="font-size:20px;font-weight:700;color:'+mc(o.mp)+'">'+o.mp+'%</span>'
+    +'<span style="font-size:11px;color:'+mc(o.mp)+'">od prihoda</span></div>'
+    +'<div class="mt" style="background:'+mbc(o.mp)+'">'
+    +'<div class="mf" style="width:'+Math.min(100,o.mp*2.5)+'%;background:'+mf(o.mp)+'"></div></div></div>';
+}
+
+function cBlock(o){
+  let rows='<div class="brow"><span class="bk">Prodajna vrednost</span><span class="bv">'+f(o.tot)+'</span></div>';
+  if(o.cAmt>0)rows+='<div class="brow"><span class="bk">Fin. popust '+o.cPct+'%</span><span class="bv" style="color:#FF3B30">- '+f(o.cAmt)+'</span></div>';
+  rows+='<div class="brow"><span class="bk">Bruto prihod (sa PDV)</span><span class="bv">'+f(o.revBruto)+'</span></div>';
+  rows+='<div class="brow"><span class="bk">PDV 20%</span><span class="bv" style="color:#FF3B30">- '+f(Math.round(o.revBruto-o.revNeto))+'</span></div>';
+  rows+='<div class="brow"><span class="bk" style="font-weight:600;color:#1D1D1F">Neto prihod (bez PDV)</span><span class="bv" style="font-weight:600">'+f(Math.round(o.revNeto))+'</span></div>';
+  rows+='<div class="brow"><span class="bk">Nab. cena robe (bez PDV)</span><span class="bv" style="color:#FF3B30">- '+f(o.cost)+'</span></div>';
+  if(o.gPC>0)rows+='<div class="brow"><span class="bk">Poklon proizvodi - nab. cena<br><span style="font-size:10px;color:#86868B">'+o.gPI.map(i=>i.name+' x'+i.qty+' - prod: '+f(i.ts)).join(', ')+'</span></span><span class="bv" style="color:#FF3B30">- '+f(o.gPC)+'</span></div>';
+  if(o.gBC>0)rows+='<div class="brow"><span class="bk">Poklon brending<br><span style="font-size:10px;color:#86868B">'+o.gBI.map(i=>i.name+' x'+i.qty).join(', ')+'</span></span><span class="bv" style="color:#FF3B30">- '+f(o.gBC)+'</span></div>';
+  rows+='<div class="brow" style="border-top:2px solid #DEDEDE;margin-top:4px;padding-top:8px"><span class="bk" style="font-weight:600;color:#1D1D1F">Neto zarada</span><span class="bv" style="color:'+mc(o.mp)+';font-size:14px">'+f(o.net)+'</span></div>';
+  const overNote=o.over?'<span style="color:#7D4E00;font-weight:600"> - Prekoracen za '+f(o.budUsed-o.eb)+'</span>':'';
+  const note='<div style="margin-top:6px;font-size:10px;color:#86868B">Auto-budzet: '+f(o.eb)+' - Iskorisceno: '+f(o.budUsed)+overNote+(o.gPS>0?' - Poklon po prod. ceni: '+f(o.gPS):'')+'</div>';
+  return '<div class="bdown">'+rows+note+'</div>';
+}
+
+function renderPend(){
+  const el=document.getElementById('ap-pend');
+  const list=pending.filter(o=>o.status==='pending');
+  if(!list.length){el.innerHTML='<div class="empty" style="padding:40px">Nema ponuda na cekanju</div>';return;}
+  el.innerHTML=list.map(o=>`
+    <div class="ai" id="oc-${o.id.replace('#','')}">
+      <div class="ah">
+        <div>
+          <div class="at">Ponuda ${o.id} - ${o.buyer}</div>
+          <div class="am">${o.date} - ${o.tierLabel}${o.over?' - <span style="color:#7D4E00;font-weight:600">Over budget</span>':''}</div>
+        </div>
+        <span class="badge by">Na cekanju</span>
+      </div>
+      ${mBlock(o)}
+      <details style="margin-bottom:10px">
+        <summary style="cursor:pointer;font-size:12px;color:#534AB7;font-weight:500;padding:4px 0">Razrada troskova i stavke</summary>
+        <div style="margin-top:8px">
+          ${cBlock(o)}
+          <div class="bdown" style="margin-top:8px">
+            <div style="font-size:11px;font-weight:600;color:#86868B;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px">Stavke narudzevine</div>
+            ${o.cItems.map(i=>'<div class="brow"><span class="bk">'+i.name+' x'+i.qty+'</span><span class="bv">'+f(i.price*i.qty)+'</span></div>').join('')}
+          </div>
+          ${o.deferred?'<div style="font-size:12px;color:#534AB7;font-weight:600;margin-top:8px">Odlozeno placanje 30 dana</div>':''}
+        </div>
+      </details>
+      <div class="aacts">
+        <button class="appr" onclick="appr('${o.id}')">Odobri</button>
+        <button class="arej" onclick="rej('${o.id}')">Odbij</button>
+      </div>
+    </div>`).join('');
+}
+
+async function appr(id){
+  const o=pending.find(x=>x.id===id);if(!o)return;
+  o.status='approved';
+  await ws({action:'updateStatus',offerId:id,status:'approved'});
+  updPBadge();renderPend();
+}
+
+async function rej(id){
+  const o=pending.find(x=>x.id===id);if(!o)return;
+  o.status='rejected';
+  await ws({action:'updateStatus',offerId:id,status:'rejected'});
+  updPBadge();renderPend();
+}
+
+function renderDone(){
+  const el=document.getElementById('ap-done');
+  const list=allOffers.filter(o=>o.status!=='pending');
+  if(!list.length){el.innerHTML='<div class="empty" style="padding:40px">Nema odobrenih ili odbijenih ponuda.</div>';return;}
+  el.innerHTML=list.map(o=>`
+    <div class="ai">
+      <div class="ah">
+        <div>
+          <div class="at">Ponuda ${o.id} - ${o.buyer}</div>
+          <div class="am">${o.date} - ${o.tierLabel}</div>
+        </div>
+        <span class="badge ${o.status==='approved'?'bg':'br'}">${o.status==='approved'?'Odobrena':'Odbijena'}</span>
+      </div>
+      ${mBlock(o)}
+      ${cBlock(o)}
+    </div>`).join('');
+}
+
+function buildCfg(){
+  document.getElementById('tier-cfg').innerHTML=tiers.slice(1).map((t,i)=>`
+    <div class="tc">
+      <div style="font-size:12px;font-weight:600;color:#1D1D1F;margin-bottom:10px">${t.label}</div>
+      <div class="sr">
+        <label>Benefit budzet (% od vrednosti)</label>
+        <input type="range" min="0" max="40" step="1" value="${t.giftPct}"
+          oninput="tiers[${i+1}].giftPct=+this.value;document.getElementById('tg${i}').textContent=this.value+'%'">
+        <span id="tg${i}">${t.giftPct}%</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;margin-top:6px;font-size:12px;color:#86868B">
+        <input type="checkbox" ${t.auto?'checked':''} onchange="tiers[${i+1}].auto=this.checked" style="accent-color:#534AB7">
+        Auto-odobrenje — minimalna margina:
+        <input type="number" value="${t.minM}" min="0" max="50"
+          style="width:46px;border:1px solid #E5E5E5;border-radius:5px;padding:2px 6px;font-size:12px;font-family:inherit"
+          onchange="tiers[${i+1}].minM=+this.value">%
+      </div>
+    </div>`).join('');
+
+  const hl=document.getElementById('hist');
+  const appr=allOffers.filter(o=>o.status==='approved');
+  if(!appr.length){hl.innerHTML='<div style="font-size:12px;color:#86868B">Nema jos.</div>';return;}
+  hl.innerHTML=appr.map(o=>`
+    <div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #F0F0F0;font-size:12px">
+      <span style="color:#86868B">Ponuda ${o.id} - ${o.buyer} - ${o.date}</span>
+      <span style="font-weight:600;color:${mc(o.mp)}">${f(o.tot)} - ${f(o.net)} (${o.mp}%)</span>
+    </div>`).join('');
+}
+
+async function saveCfg(){
+  await ws({action:'saveTiers',tiers});
+  const s=document.getElementById('cfg-st');
+  s.textContent='Sacuvano';
+  setTimeout(()=>s.textContent='',3000);
+}
+
+// INIT
+renderPT();
+uAll();
+</script>
+
+<!--
+=================================================================
+GOOGLE APPS SCRIPT — zalepi u Extensions > Apps Script
+
+function doPost(e) {
+  const data = JSON.parse(e.postData.contents);
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+
+  if (data.action === 'addOffer') {
+    let sheet = ss.getSheetByName('Ponude');
+    if (!sheet) {
+      sheet = ss.insertSheet('Ponude');
+      sheet.appendRow(['ID','Datum','Kupac','Vrednost','Prihod','Nab.cena','Neto zarada','Margina %',
+        'Fin.popust %','Fin.popust din','Poklon prod (prod)','Poklon prod (nab)',
+        'Poklon brending','Budget','Iskorisceno','Over budget','Tier','Odlozeno','Status','Stavke']);
+    }
+    const o = data.offer;
+    sheet.appendRow([o.id,o.date,o.buyer,o.tot,o.rev,o.cost,o.net,o.mp,
+      o.cPct,o.cAmt,o.gPS,o.gPC,o.gBC,o.eb,o.budUsed,o.over?'Da':'Ne',
+      o.tierLabel,o.deferred?'Da':'Ne',o.status,
+      o.cItems.map(i=>i.name+' x'+i.qty).join(', ')]);
+  }
+
+  if (data.action === 'updateStatus') {
+    const sheet = ss.getSheetByName('Ponude');
+    if (!sheet) return ContentService.createTextOutput('ok');
+    const rows = sheet.getDataRange().getValues();
+    for (let i = 1; i < rows.length; i++) {
+      if (rows[i][0] === data.offerId) {
+        sheet.getRange(i+1, 19).setValue(data.status);
+        break;
+      }
+    }
+  }
+
+  if (data.action === 'saveTiers') {
+    let sheet = ss.getSheetByName('Konfiguracija');
+    if (!sheet) sheet = ss.insertSheet('Konfiguracija');
+    sheet.clearContents();
+    sheet.appendRow(['Tier','Min','Max','Benefit %','Auto','Min margina %']);
+    data.tiers.forEach(t =>
+      sheet.appendRow([t.label,t.min,t.max>1e300?'beskonacno':t.max,t.giftPct,t.auto?'Da':'Ne',t.minM]));
+  }
+
+  return ContentService.createTextOutput('ok');
+}
+
+Deploy > New deployment > Web App
+Execute as: Me | Access: Anyone
+Kopiraj URL i zameni YOUR_APPS_SCRIPT_URL_HERE
+=================================================================
+-->
+
+</body>
+</html>
