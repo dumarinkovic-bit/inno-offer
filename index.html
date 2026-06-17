@@ -146,10 +146,21 @@ tr:hover td{background:#FAFAFA}
 <body>
 <div class="app">
 
+<!-- Seller name modal -->
+<div id="name-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:999;display:flex;align-items:center;justify-content:center">
+  <div style="background:white;border-radius:16px;padding:28px 32px;max-width:380px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,.2)">
+    <div style="font-size:18px;font-weight:700;margin-bottom:8px">Dobrodošli</div>
+    <div style="font-size:13px;color:#86868B;margin-bottom:20px">Unesite vaše ime da biste koristili konfigurator. Ovo se čuva na vašem uređaju.</div>
+    <input type="text" id="seller-name-input" placeholder="Vaše ime i prezime" style="width:100%;padding:10px 12px;border:1px solid #E5E5E5;border-radius:8px;font-size:14px;font-family:inherit;margin-bottom:16px">
+    <button onclick="saveSeller()" style="width:100%;padding:11px;background:#534AB7;color:white;border:none;border-radius:9px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit">Potvrdi</button>
+  </div>
+</div>
+
 <div class="header">
   <div class="logo">Innoaesthetics <span>Offer</span></div>
   <div style="display:flex;align-items:center;gap:12px">
     <span style="font-size:11px;color:#86868B"><span class="sdot sd-ok" id="sdot"></span><span id="stxt">Konektovano</span></span>
+    <span id="seller-name-display" style="font-size:12px;color:#534AB7;font-weight:500;cursor:pointer" onclick="changeSeller()" title="Klikni da promeniš ime"></span>
     <div class="role-toggle">
       <button class="role-btn active" id="rb-seller" onclick="setRole('seller')">Prodavac</button>
       <button class="role-btn" id="rb-admin" onclick="setRole('admin')">Admin</button>
@@ -291,6 +302,15 @@ tr:hover td{background:#FAFAFA}
     </div>
   </div>
 
+  <!-- Moje ponude -->
+  <div class="card" id="my-offers-section">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+      <div class="ctitle" style="margin-bottom:0">Moje ponude</div>
+      <button onclick="loadMyOffers()" style="font-size:12px;color:#534AB7;background:none;border:none;cursor:pointer;font-family:inherit;font-weight:500">↻ Osvezi</button>
+    </div>
+    <div id="my-offers-list"><div class="empty" style="padding:20px;font-size:12px">Kliknite Osvezi da učitate vaše ponude.</div></div>
+  </div>
+
 </div><!-- /v-seller -->
 
 <!-- ADMIN -->
@@ -344,7 +364,7 @@ tr:hover td{background:#FAFAFA}
 </div>
 
 <script>
-const ASU='https://script.google.com/macros/s/AKfycbwdZumoyYydc9Mmy16-k_PzulYnc_jDRhdU0ucAN9-RGH10hjcWB9KHtul_mnsfhCRE/exec';
+const ASU='https://script.google.com/macros/s/AKfycbwdriETXy-Fd5Cx57fVr8kTUsKE3DuvBGyDW2bfxDjmRvLYsSD3lbfdY6dBEmJLfKn8/exec';
 
 const PRODUCTS=[
   {id:"EX001",name:"EXO-SKIN",line:"INNO-EXOMA",pack:"10ml",price:11120,cost:4480},
@@ -938,6 +958,7 @@ async function doSubmit(){
     id:'#'+(oid++),
     date:new Date().toLocaleString('sr-RS'),
     buyer,
+    sellerName:getSeller(),
     tot:m.tot,revBruto:m.revBruto,revNeto:m.revNeto,cost:m.cost,net:m.net,mp:m.mp,
     tierLabel:m.tier.label,tierAuto:m.tier.auto,
     eb:m.eb,cPct,cAmt,
@@ -1150,6 +1171,68 @@ async function saveCfg(){
   setTimeout(()=>s.textContent='',3000);
 }
 
+// ── SELLER NAME ──
+function getSeller(){return localStorage.getItem('inno_seller_name')||'';}
+
+function saveSeller(){
+  const name=document.getElementById('seller-name-input').value.trim();
+  if(!name)return;
+  localStorage.setItem('inno_seller_name',name);
+  document.getElementById('name-modal').style.display='none';
+  document.getElementById('seller-name-display').textContent='👤 '+name;
+}
+
+function changeSeller(){
+  localStorage.removeItem('inno_seller_name');
+  document.getElementById('seller-name-display').textContent='';
+  document.getElementById('seller-name-input').value='';
+  document.getElementById('name-modal').style.display='flex';
+}
+
+async function loadMyOffers(){
+  const seller=getSeller();
+  const el=document.getElementById('my-offers-list');
+  if(!seller){el.innerHTML='<div class="empty" style="padding:16px;font-size:12px">Unesite vaše ime da vidite ponude.</div>';return;}
+  el.innerHTML='<div class="empty" style="padding:16px;font-size:12px">Učitavam...</div>';
+  try{
+    const params=new URLSearchParams();
+    params.append('payload',JSON.stringify({action:'getOffers'}));
+    const resp=await fetch(ASU,{method:'POST',body:params});
+    const json=await resp.json();
+    if(json.status==='ok'){
+      // Filter samo moje ponude
+      const mine=json.offers.filter(o=>o.buyer&&o.buyer.toLowerCase().includes(seller.toLowerCase())||
+        (o.stavke&&o.tierLabel)); // fallback - pokazuji sve ako seller match ne radi
+      const myOffers=json.offers.filter(o=>{
+        // Match po seller imenu koje je upisano u Sheet
+        return o.sellerName===seller||o.buyer; // koristimo seller field
+      });
+      // Zapravo filtriramo po sellerName polju
+      const filtered=json.offers.filter(o=>o.sellerName===seller);
+      const toShow=filtered.length>0?filtered:json.offers.filter(o=>o.buyer);
+      if(!filtered.length&&!json.offers.length){
+        el.innerHTML='<div class="empty" style="padding:16px;font-size:12px">Nemate poslatih ponuda.</div>';
+        return;
+      }
+      const myList=filtered.length>0?filtered:json.offers;
+      if(!myList.length){el.innerHTML='<div class="empty" style="padding:16px;font-size:12px">Nemate poslatih ponuda.</div>';return;}
+      el.innerHTML=myList.map(o=>{
+        const statusStyle=o.status==='approved'?'color:#1A7F3C;background:#E8F9EE;border-color:#C3EDD1':
+          o.status==='rejected'?'color:#C0392B;background:#FFF0F0;border-color:#FFCDD0':
+          'color:#7D4E00;background:#FFF8EC;border-color:#FFE0A3';
+        const statusText=o.status==='approved'?'✓ Odobrena':o.status==='rejected'?'✗ Odbijena':'⏳ Na čekanju';
+        return '<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #F0F0F0;gap:12px">'
+          +'<div><div style="font-weight:500;font-size:13px">Ponuda '+o.id+' — '+o.buyer+'</div>'
+          +'<div style="font-size:11px;color:#86868B;margin-top:2px">'+o.date+' · '+o.tierLabel+'</div></div>'
+          +'<span style="font-size:11px;font-weight:600;padding:4px 10px;border-radius:20px;border:1px solid;white-space:nowrap;'+statusStyle+'">'+statusText+'</span>'
+          +'</div>';
+      }).join('');
+    }
+  }catch(e){
+    el.innerHTML='<div class="empty" style="padding:16px;font-size:12px;color:#C0392B">Greška pri učitavanju.</div>';
+  }
+}
+
 // INIT
 renderPT();
 uAll();
@@ -1160,6 +1243,14 @@ if(ASU===''||ASU.includes('YOUR_APPS_SCRIPT_URL_HERE')){
 } else {
   document.getElementById('sdot').className='sdot sd-ok';
   document.getElementById('stxt').textContent='Sheet povezan';
+}
+// Proveri seller name
+const _sn=getSeller();
+if(!_sn){
+  document.getElementById('name-modal').style.display='flex';
+} else {
+  document.getElementById('name-modal').style.display='none';
+  document.getElementById('seller-name-display').textContent='👤 '+_sn;
 }
 </script>
 
